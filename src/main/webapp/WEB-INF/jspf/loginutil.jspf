@@ -1,4 +1,5 @@
-<%@page import="java.util.*"%><%--
+<%@page import="java.security.MessageDigest"%><%--
+--%><%@page import="java.util.*"%><%--
 --%><%@page contentType="text/html" pageEncoding="UTF-8"%><%--
 --%><%--
 --%><%--
@@ -48,6 +49,18 @@
     Map.Entry<String,String> creds
     ) {
         getRememberMeMap(request).put(uuid, creds);
+    }
+
+    public static String hash(String password) throws Exception {
+	MessageDigest md = MessageDigest.getInstance("SHA-256");
+	md.update(password.getBytes("UTF-8"));
+	byte byteData[] = md.digest();
+	StringBuffer sb = new StringBuffer();
+	for (int i = 0; i < byteData.length; i++) {
+	    sb.append(Integer.toString((byteData[i] & 0xff) + 0x100, 16).substring(1));
+	}
+	password = sb.toString();
+	return password;
     }
 
     public static Map<String, Map.Entry<String,String>> getRememberMeMap(HttpServletRequest request) {

@@ -27,6 +27,7 @@
                 if (creds != null) {
                     String username = creds.getKey();
                     String password = creds.getValue();
+		    System.out.println(password);
                     boolean ok = false;
                     try {
                         request.login(username, password);
@@ -58,7 +59,8 @@
             if ("on".equals(request.getParameter("remember_me"))) {
                 String uuid = UUID.randomUUID().toString();
                 addCookie(response, COOKIE_NAME, uuid, COOKIE_AGE); // Extends age.
-                rememberMeServiceSave(request, uuid, new AbstractMap.SimpleEntry<String,String>(username,password));
+                rememberMeServiceSave(request, uuid,
+			new AbstractMap.SimpleEntry<String,String>(username,hash(password)));
             }
             // TODO: create cookie and save creds
             

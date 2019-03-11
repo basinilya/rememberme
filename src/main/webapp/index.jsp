@@ -21,7 +21,7 @@
     </head>
     <body>
 	<%@include file="/WEB-INF/jspf/heading.jspf" %>
-        <h1>Index2</h1>
+        <h1>Index</h1>
         <a href="restricted/page.jsp">Restricted...</a>
     </body>
 </html>
