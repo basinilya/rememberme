@@ -69,6 +69,7 @@
     }
 
 %><%
+    System.out.println("login.jsp");
     String originalUri = request.getParameter("original_uri");
     if (isBlank(originalUri)) {
         originalUri = (String) request.getAttribute(RequestDispatcher.FORWARD_SERVLET_PATH);
@@ -125,8 +126,10 @@
             return;
         }
     }
+    if ("1".equals(request.getParameter("error"))) {
+	request.setAttribute("login_error", true);
+    }
     request.setAttribute("original_uri", originalUri);
-    request.setAttribute("loginPath", request.getServletPath());
 %><%--
 --%><!DOCTYPE html>
 <html>
@@ -135,7 +138,7 @@
         <title>Login Page</title>
     </head>
     <body>
-        <c:url value="${loginPath}" var="url"/>
+        <c:url value="${pageContext.request.servletPath}" var="url"/>
         <%--  --%>
         <form method="post" action="${fn:escapeXml(url)}">
             <h1>7 Please sign in</h1>
