@@ -12,6 +12,37 @@
 --%><%--
 --%><%@include file="/WEB-INF/jspf/loginutil.jspf" %><%!
 
+    private static volatile Boolean hashSupported = null;
+
+    public static boolean tryHashLogin(HttpServletRequest request, Map.Entry<String,String> creds) {
+	System.out.println("hashSupported: " + hashSupported);
+	String username = creds.getKey();
+	String password = creds.getValue();
+	if (!Boolean.FALSE.equals(hashSupported)) {
+	    String hashedPass = hash(password);
+	    if (tryLogin(request, username, hashedPass)) {
+		hashSupported = Boolean.TRUE;
+		creds.setValue(hashedPass);
+		return true;
+	    } else if (hashSupported != null) {
+		return false;
+	    }
+	}
+	if (tryLogin(request, username, password)) {
+	    hashSupported = Boolean.FALSE;
+	    return true;
+	}
+	return false;
+    }
+
+    public static boolean tryLogin(HttpServletRequest request, String username, String password) {
+	try {
+	    request.login(username, password);
+	    return true;
+	} catch (ServletException e) {
+	    return false;
+	}
+    }
 %><%
     System.out.println("login.jsp");
     String originalUri = request.getParameter("original_uri");
@@ -27,15 +58,7 @@
                 if (creds != null) {
                     String username = creds.getKey();
                     String password = creds.getValue();
-		    System.out.println(password);
-                    boolean ok = false;
-                    try {
-                        request.login(username, password);
-                        ok = true;
-                    } catch (ServletException e) {
-                        //
-                    }
-                    if (ok) {
+                    if (tryLogin(request, username, password)) {
                         System.out.println("forward: " + originalUri);
                         RequestDispatcher dispatcher = getServletContext().getRequestDispatcher(originalUri);
                         dispatcher.forward(request,response);
@@ -48,19 +71,15 @@
     String username = request.getParameter("j_username");
     if (!isBlank(username)) {
         String password = request.getParameter("j_password");
-        boolean ok = false;
-        try {
-            request.login(username, password);
-            ok = true;
-        } catch (ServletException e) {
+	Map.Entry<String,String> creds =
+	    new AbstractMap.SimpleEntry<String,String>(username,password);
+        if (!tryHashLogin(request, creds)) {
             request.setAttribute("login_error", true);
-        }
-        if (ok) {
+	} else {
             if ("on".equals(request.getParameter("remember_me"))) {
                 String uuid = UUID.randomUUID().toString();
                 addCookie(response, COOKIE_NAME, uuid, COOKIE_AGE); // Extends age.
-                rememberMeServiceSave(request, uuid,
-			new AbstractMap.SimpleEntry<String,String>(username,hash(password)));
+                rememberMeServiceSave(request, uuid, creds);
             }
             // TODO: create cookie and save creds
             
