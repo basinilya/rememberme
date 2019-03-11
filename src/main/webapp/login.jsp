@@ -81,11 +81,13 @@
                 addCookie(response, COOKIE_NAME, uuid, COOKIE_AGE); // Extends age.
                 rememberMeServiceSave(request, uuid, creds);
             }
-            // TODO: create cookie and save creds
             
             // send 302 redirect
             if (originalUri.startsWith("/")) {
                 originalUri = originalUri.substring(1);
+            }
+            if (originalUri.isEmpty()) {
+                originalUri = "."; // Tomcat 8 sends empty Location by default
             }
             response.sendRedirect(originalUri);
             return;
