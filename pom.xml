@@ -82,8 +82,15 @@
 				<version>${jetty-version}</version>
 				<configuration>
 					<webApp>
+						<contextPath>/${build.finalName}</contextPath>
 						<webInfIncludeJarPattern>.*/^(asm-all-repackaged)[^/]*\.jar$</webInfIncludeJarPattern>
 					</webApp>
+					<loginServices>
+					<loginService implementation="org.eclipse.jetty.security.HashLoginService">
+						<name>file</name>
+						<config>${project.basedir}/src/etc/realm.properties</config>
+						</loginService>
+					</loginServices>
 				</configuration>
 				<!-- <dependencies> <dependency> <groupId>org.ow2.asm</groupId> <artifactId>asm</artifactId> 
 					<version>5.2</version> </dependency> <dependency> <groupId>org.ow2.asm</groupId> 
