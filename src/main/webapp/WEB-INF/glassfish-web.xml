@@ -3,7 +3,7 @@
 <glassfish-web-app error-url="">
   <security-role-mapping>
     <role-name>remembermeclient</role-name>
-    <principal-name>dui_client</principal-name>
+    <principal-name>client</principal-name>
   </security-role-mapping>
   <class-loader delegate="true"/>
   <jsp-config>
