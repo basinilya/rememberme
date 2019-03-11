@@ -9,7 +9,15 @@
 --%><%@ taglib prefix = "fn" uri = "http://java.sun.com/jsp/jstl/functions" %><%--
 --%><%--
 --%><%--
+--%><%--
+--%><%@include file="/WEB-INF/jspf/loginutil.jspf" %><%--
 --%><%
+    String uuid = getCookieValue(request, COOKIE_NAME);
+    if (uuid != null) {
+	getRememberMeMap(request).remove(uuid);
+	removeCookie(response, COOKIE_NAME);
+    }
+
     request.getSession().invalidate();
     System.out.println("logged out");
 %><%--

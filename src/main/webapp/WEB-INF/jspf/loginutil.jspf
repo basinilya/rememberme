@@ -36,6 +36,10 @@
         response.addCookie(cookie);
     }
 
+    public static void removeCookie(HttpServletResponse response, String name) {
+	addCookie(response, name, null, 0);
+    }
+
     public static Map.Entry<String,String> rememberMeServiceFind(HttpServletRequest request, String uuid) {
         return getRememberMeMap(request).get(uuid);
     }
