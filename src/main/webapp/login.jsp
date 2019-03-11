@@ -40,6 +40,7 @@
 	    request.login(username, password);
 	    return true;
 	} catch (ServletException e) {
+e.printStackTrace();
 	    return false;
 	}
     }
