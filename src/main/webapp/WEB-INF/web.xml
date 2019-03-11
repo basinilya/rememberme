@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app version="3.1" xmlns="http://xmlns.jcp.org/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd">
+    <session-config>
+        <session-timeout>
+            30
+        </session-timeout>
+    </session-config>
+    <login-config>
+        <auth-method>FORM</auth-method>
+        <realm-name>file</realm-name>
+        <form-login-config>
+            <form-login-page>/login.jsp</form-login-page>
+            <form-error-page>/login.jsp?error=1</form-error-page>
+        </form-login-config>
+    </login-config>
+    <security-constraint>
+        <display-name>Restricted</display-name>
+        <web-resource-collection>
+            <web-resource-name>Restricted Access</web-resource-name>
+            <url-pattern>/restricted/*</url-pattern>
+        </web-resource-collection>
+        <web-resource-collection>
+            <web-resource-name>index</web-resource-name>
+            <description/>
+            <url-pattern>/index.html</url-pattern>
+        </web-resource-collection>
+        <auth-constraint>
+            <role-name>remembermeclient</role-name>
+        </auth-constraint>
+    </security-constraint>
+</web-app>
