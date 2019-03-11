@@ -73,5 +73,4 @@
     }
 
 %><%
-    System.out.println("loginutil");
 %>

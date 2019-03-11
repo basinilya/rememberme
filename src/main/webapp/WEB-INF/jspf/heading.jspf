@@ -10,7 +10,6 @@
 --%><%--
 --%><%--
 --%><%
-    System.out.println("heading");
 %><%--
 --%><div>
 	    <c:if test="${not empty pageContext.request.userPrincipal}">
