@@ -72,11 +72,11 @@ e.printStackTrace();
 	String username = request.getParameter("j_username");
 	if (!isBlank(username)) {
 		String password = request.getParameter("j_password");
-	Map.Entry<String,String> creds =
-		new AbstractMap.SimpleEntry<String,String>(username,password);
+		Map.Entry<String,String> creds =
+			new AbstractMap.SimpleEntry<String,String>(username,password);
 		if (!tryHashLogin(request, creds)) {
 			request.setAttribute("login_error", true);
-	} else {
+		} else {
 			if ("on".equals(request.getParameter("remember_me"))) {
 				String uuid = UUID.randomUUID().toString();
 				addCookie(response, COOKIE_NAME, uuid, COOKIE_AGE); // Extends age.
@@ -95,7 +95,7 @@ e.printStackTrace();
 		}
 	}
 	if ("1".equals(request.getParameter("error"))) {
-	request.setAttribute("login_error", true);
+		request.setAttribute("login_error", true);
 	}
 	request.setAttribute("original_uri", originalUri);
 %><%--
