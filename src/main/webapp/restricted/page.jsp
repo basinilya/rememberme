@@ -23,5 +23,7 @@
 	<%@include file="/WEB-INF/jspf/heading.jspf" %>
         <h1>Restricted Page</h1>
         <a href="..">Index...</a>
+        <hr>
+        <pre><c:out value="${param.text}"/></pre>
     </body>
 </html>

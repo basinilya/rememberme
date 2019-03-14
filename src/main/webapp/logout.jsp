@@ -29,5 +29,11 @@
     </head>
     <body>
         <h1>Logged Out Successfully</h1>
+		<p>
+        <a href=".">Index...</a>
+		</p>
+		<p>
+	        <a href="static/unrestricted.html">Unrestricted...</a>
+		</p>
     </body>
 </html>
