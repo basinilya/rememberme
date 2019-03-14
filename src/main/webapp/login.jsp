@@ -151,7 +151,7 @@
 				}
 			} else {
 				// if getInputStream() succeeds, then http 200 or such
-				// meaning login failure
+				// meaning login failure (Tomcat)
 				conn.getInputStream().close();
 				return false;
 			}
