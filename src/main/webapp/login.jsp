@@ -58,7 +58,7 @@
 		<c:url value="${pageContext.request.servletPath}" var="url"/>
 		<%--  --%>
 		<form method="post" action="${fn:escapeXml(url)}">
-			<h1>7 Please sign in</h1>
+			<h1>Please sign in</h1>
 			<label for="j_username">Login</label>
 			<input id="j_username" name="j_username" type="text" value="client"/>
 			<label for="j_password">Password</label>
@@ -105,8 +105,11 @@
 		conn.setRequestProperty("Content-Length", Integer.toString(postDataLength ));
 		conn.setRequestProperty("charset", "utf-8");
 		conn.setRequestProperty("Cookie", request.getHeader("Cookie"));
-		try (OutputStream wr = conn.getOutputStream()) {
+		OutputStream wr = conn.getOutputStream();
+		try {
 			wr.write(postData);
+		} finally {
+		    wr.close();
 		}
 		int code = conn.getResponseCode();
 		String location = null;
