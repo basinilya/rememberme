@@ -30,11 +30,16 @@
 		username = request.getParameter("j_username");
 		if (!isBlank(username)) {
 			String password = request.getParameter("j_password");
-			Map.Entry<String,String> creds =
-				new AbstractMap.SimpleEntry<String,String>(username,password);
+
+			// set the cookie even though login may fail
+			// Will delete it later
+			// TODO: temporarily store password in session and
+			// convert to cookie in a global filter
 			if ("on".equals(request.getParameter("remember_me"))) {
 				uuid = UUID.randomUUID().toString();
 				addCookie(response, COOKIE_NAME, uuid, COOKIE_AGE); // Extends age.
+				Map.Entry<String,String> creds =
+						new AbstractMap.SimpleEntry<String,String>(username,password);
 				rememberMeServiceSave(request, uuid, creds);
 			}
 			if (jSecurityCheck(request, response, username, password)) {
@@ -55,8 +60,10 @@
 				request.setAttribute("login_error", true);
 			}
 		}
-
 	}
+
+	// login failed
+	removeCookie(response, COOKIE_NAME);
 %><%--
 --%><!DOCTYPE html>
 <html>
