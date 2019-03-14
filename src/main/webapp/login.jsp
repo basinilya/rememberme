@@ -22,30 +22,40 @@
 		request.setAttribute("login_error", true);
 	} else {
 	    // The initial render of the login page
-		String uuid = getCookieValue(request, COOKIE_NAME);
+		String uuid;
+		String username;
+
+		// Form fields have priority over the persistent cookie
+
+		username = request.getParameter("j_username");
+		if (!isBlank(username)) {
+			String password = request.getParameter("j_password");
+			Map.Entry<String,String> creds =
+				new AbstractMap.SimpleEntry<String,String>(username,password);
+			if ("on".equals(request.getParameter("remember_me"))) {
+				uuid = UUID.randomUUID().toString();
+				addCookie(response, COOKIE_NAME, uuid, COOKIE_AGE); // Extends age.
+				rememberMeServiceSave(request, uuid, creds);
+			}
+			if (jSecurityCheck(request, response, username, password)) {
+				return;
+			}
+			request.setAttribute("login_error", true);
+		}
+
+		uuid = getCookieValue(request, COOKIE_NAME);
 		if (uuid != null) {
 			Map.Entry<String,String> creds = rememberMeServiceFind(request, uuid);
 			if (creds != null) {
-				String username = creds.getKey();
+				username = creds.getKey();
 				String password = creds.getValue();
-				jSecurityCheck(request, response, username, password);
-				return; // going to redirect here again if login error
+				if (jSecurityCheck(request, response, username, password)) {
+					return; // going to redirect here again if login error
+				}
+				request.setAttribute("login_error", true);
 			}
 		}
-	}
 
-	String username = request.getParameter("j_username");
-	if (!isBlank(username)) {
-		String password = request.getParameter("j_password");
-		Map.Entry<String,String> creds =
-			new AbstractMap.SimpleEntry<String,String>(username,password);
-		if ("on".equals(request.getParameter("remember_me"))) {
-			String uuid = UUID.randomUUID().toString();
-			addCookie(response, COOKIE_NAME, uuid, COOKIE_AGE); // Extends age.
-			rememberMeServiceSave(request, uuid, creds);
-		}
-		jSecurityCheck(request, response, username, password);
-		return;
 	}
 %><%--
 --%><!DOCTYPE html>
@@ -79,7 +89,7 @@
 	/** Using "j_security_check" instead of request.login() lets the container restore
 	 * not only the original address, but the method and the POST data
 	 */
-	public static void jSecurityCheck(HttpServletRequest request, HttpServletResponse response, String username, String password) throws Exception {
+	public static boolean jSecurityCheck(HttpServletRequest request, HttpServletResponse response, String username, String password) throws Exception {
 		Map<String, String> formParams = new HashMap<String, String>();
 		formParams.put("j_username", username);
 		formParams.put("j_password", password);
@@ -90,49 +100,58 @@
 		String s = "http://" + request.getLocalAddr() + ":" + request.getLocalPort()
 			+ request.getContextPath() + "/j_security_check";
 		HttpURLConnection conn = (HttpURLConnection)new URL(s).openConnection();
-		conn.setDoOutput(true);
-		conn.setUseCaches(false);
-		conn.setInstanceFollowRedirects(false);
-		conn.setRequestMethod("POST");
-		
-		String PROP = "sun.net.http.allowRestrictedHeaders";
-		if (!"true".equals(System.getProperty(PROP))) {
-		    request.getServletContext().log("must set to true: " + PROP);
-		}
-		conn.setRequestProperty("Host", request.getHeader("Host"));
-		
-		conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-		conn.setRequestProperty("Content-Length", Integer.toString(postDataLength ));
-		conn.setRequestProperty("charset", "utf-8");
-		conn.setRequestProperty("Cookie", request.getHeader("Cookie"));
-		OutputStream wr = conn.getOutputStream();
 		try {
-			wr.write(postData);
-		} finally {
-		    wr.close();
-		}
-		int code = conn.getResponseCode();
-		String location = null;
-		if (code == 301 || code == 302 || code == 303 || code == 307 || code == 308) {
-			location = conn.getHeaderField("Location");
-			if (location != null) {
-			    // There's no way to detect login success or failure
-			    // The Location can be either the login page or the original page address.
-			    // In the latter case it may still serve the login page again.
-				String newcook = conn.getHeaderField("Set-Cookie");
-				if (newcook != null) {
-					// response.setHeader("Set-Cookie", newcook);
-					CookieCutter cc = new CookieCutter();
-					cc.addCookieField(newcook);
-					for (Cookie c : cc.getCookies()) {
-						response.addCookie(c);
-					}
-				}
-				response.sendRedirect(location);
-				return;
+			conn.setDoOutput(true);
+			conn.setUseCaches(false);
+			conn.setInstanceFollowRedirects(false);
+			conn.setRequestMethod("POST");
+			
+			String PROP = "sun.net.http.allowRestrictedHeaders";
+			if (!"true".equals(System.getProperty(PROP))) {
+			    request.getServletContext().log("must set to true: " + PROP);
 			}
+			conn.setRequestProperty("Host", request.getHeader("Host"));
+			
+			conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
+			conn.setRequestProperty("Content-Length", Integer.toString(postDataLength ));
+			conn.setRequestProperty("charset", "utf-8");
+			conn.setRequestProperty("Cookie", request.getHeader("Cookie"));
+			OutputStream wr = conn.getOutputStream();
+			try {
+				wr.write(postData);
+			} finally {
+			    wr.close();
+			}
+			int code = conn.getResponseCode();
+			String location = null;
+			if (code == 301 || code == 302 || code == 303 || code == 307 || code == 308) {
+				location = conn.getHeaderField("Location");
+				if (location != null) {
+				    // In case of redirect there's no way to detect login success or failure
+				    // The Location can be either the error page or the original page address.
+				    // In the latter case it may still serve the login page again.
+					String newcook = conn.getHeaderField("Set-Cookie");
+					if (newcook != null) {
+						// response.setHeader("Set-Cookie", newcook);
+						CookieCutter cc = new CookieCutter();
+						cc.addCookieField(newcook);
+						for (Cookie c : cc.getCookies()) {
+							response.addCookie(c);
+						}
+					}
+					response.sendRedirect(location);
+					return true;
+				}
+			} else {
+				// if getInputStream() succeeds, then http 200 or such
+				// meaning login failure
+				conn.getInputStream().close();
+				return false;
+			}
+			throw new ServletException("Unexpected j_security_check response " + code + " Location: " + location);
+		} finally {
+		    conn.disconnect();
 		}
-		throw new ServletException("Unexpected j_security_check response " + code + " Location: " + location);
 	}
 
 	private static String getDataString(Map<String, String> params) throws UnsupportedEncodingException{
