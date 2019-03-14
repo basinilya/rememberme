@@ -22,6 +22,11 @@
     <body>
 	<%@include file="/WEB-INF/jspf/heading.jspf" %>
         <h1>Index</h1>
+	<p>
         <a href="restricted/page.jsp">Restricted...</a>
+	</p>
+	<p>
+        <a href="static/unrestricted.html">Unrestricted...</a>
+	</p>
     </body>
 </html>

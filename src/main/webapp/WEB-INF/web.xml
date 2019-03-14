@@ -22,6 +22,7 @@
         <web-resource-collection>
             <web-resource-name>index</web-resource-name>
             <description/>
+            <url-pattern></url-pattern><!-- Yes, empty string! (for Jetty) -->
             <url-pattern>/index.jsp</url-pattern>
         </web-resource-collection>
         <auth-constraint>
