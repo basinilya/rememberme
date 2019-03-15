@@ -52,7 +52,7 @@ Most of the code is inside JSP scriptlets for easier hot swap during the initial
 
 Set the `Path=<contextRoot>` for the cookie
 
-Temporarily store password in session and convert to cookie in a global filter. This will allow to store only the successfully used credentials instead of deleting the them while serving the error page
+Temporarily store password in session and convert to cookie in a global filter. This will allow to store only the successfully used credentials instead of deleting them while serving the error page
 
 Detect container HTTP listener has SSL/TLS enabled (`request.isSecure()` unreliable due to possible offload). Possibly use a custom `SSLSocketFactory` tweaked for "trust all" to access the HTTP listener on local host.
 
