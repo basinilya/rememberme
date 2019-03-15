@@ -39,13 +39,21 @@ To implement the "Stay Logged In" feature we save the credentials from the submi
 
 The flow is the following:
 * Get forwarded/redirected to the login form
-* Check if we're served as the `<form-error-page>`
-* If not, check if some credentials are submitted
-* 
+* If we're served as the `<form-error-page>` then render the form and the error message
+* Otherwise, if some credentials are submitted, then store them and call `/j_security_check` and redirect to the outcome (which might be us again)
+* Otherwise, if the cookie is found, then retrieve the associated credentials and continue with `/j_security_check`
+* If none of the above, then render the login form without the error message
 
-sent by browser are 
-
-
-The containers don't allow filters on 
+The code for `/j_security_check` sends a POST request using the current `JSESSIONID` cookie and the credentials either from the real form or associated with the persistent cookie. 
 
 Most of the code is inside JSP scriptlets for easier hot swap during the initial phase of the development. It can be easily moved into a servlet.
+
+## TODOs
+
+Set the `Path=<contextRoot>` for the cookie
+
+Temporarily store password in session and convert to cookie in a global filter. This will allow to store only the successfully used credentials instead of deleting the them while serving the error page
+
+Detect container HTTP listener has SSL/TLS enabled (`request.isSecure()` unreliable due to possible offload). Possibly use a custom `SSLSocketFactory` tweaked for "trust all" to access the HTTP listener on local host.
+
+Possibly, switch to the Apache HTTP Client, because `HttpURLConnection` does not allow overriding the `Host:` header and this is important, if you have virtual servers. Alternatively, use a custom `java.net.Proxy` for both "trust-all" SSL Socket and that connects the virtual server URL to the real IP address.
