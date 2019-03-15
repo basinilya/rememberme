@@ -35,7 +35,7 @@ The dynamic login page does all the job, including:
 * automatic login
 * redirecting back to the initially requested page
 
-To implement the "Stay Logged In" feature we save the credentials from the submitted login form in the servlet context attribute (for now). Unlike in the SO answer above, the pasword is not hashed, because only certain setups accept that (Glassfish with a jdbc realm). The persistent cookie is associated with the credentials.
+To implement the "Stay Logged In" feature we save the credentials from the submitted login form in the servlet context attribute (for now). Unlike in the SO answer above, the password is not hashed, because only certain setups accept that (Glassfish with a jdbc realm). The persistent cookie is associated with the credentials.
 
 The flow is the following:
 * Get forwarded/redirected to the login form
@@ -57,3 +57,5 @@ Temporarily store password in session and convert to cookie in a global filter. 
 Detect container HTTP listener has SSL/TLS enabled (`request.isSecure()` unreliable due to possible offload). Possibly use a custom `SSLSocketFactory` tweaked for "trust all" to access the HTTP listener on local host.
 
 Possibly, switch to the Apache HTTP Client, because `HttpURLConnection` does not allow overriding the `Host:` header and this is important, if you have virtual servers. Alternatively, use a custom `java.net.Proxy` for both "trust-all" SSL Socket and that connects the virtual server URL to the real IP address.
+
+Encrypt and store the credentials on disk.
