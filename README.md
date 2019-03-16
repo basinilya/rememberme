@@ -1,5 +1,5 @@
 # rememberme
-Implement Stay Logged In in java EE 7 without custom Login Module
+Implement Stay Logged In in java EE 6/7 without a custom Login Module
 
 Inspired by the SO answer "How to implement “Stay Logged In” when user login in to the web application" https://stackoverflow.com/a/5083809/447503
 
@@ -51,6 +51,10 @@ Most of the code is inside JSP scriptlets for easier hot swap during the initial
 ## TODOs
 
 Set the `Path=<contextRoot>` for the cookie
+
+Synchronized Map for the saved credentials
+
+On logout also remove the credentials from the Credentials Map
 
 Temporarily store password in session and convert to cookie in a global filter. This will allow to store only the successfully used credentials instead of deleting them while serving the error page
 
