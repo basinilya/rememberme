@@ -60,6 +60,8 @@ Temporarily store password in session and convert to cookie in a global filter. 
 
 Detect container HTTP listener has SSL/TLS enabled (`request.isSecure()` unreliable due to possible offload). Possibly use a custom `SSLSocketFactory` tweaked for "trust all" to access the HTTP listener on local host.
 
+Also send the offload headers like X-Forwarded-Proto or $WSIS to `/j_security_check`
+
 Possibly, switch to the Apache HTTP Client, because `HttpURLConnection` does not allow overriding the `Host:` header and this is important, if you have virtual servers. Alternatively, use a custom `java.net.Proxy` for both "trust-all" SSL Socket and that connects the virtual server URL to the real IP address.
 
 Encrypt and store the credentials on disk.
